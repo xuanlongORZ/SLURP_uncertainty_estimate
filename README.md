@@ -16,3 +16,16 @@ On Sintel dataset (without fine-tuning):
 
 On KITTI dataset:
 ![plot](./others/slurp_kitti_vis.gif)
+
+## Citation
+If you find this work useful for your research, please consider citing our paper:
+
+    @inproceedings{yu21bmvc,
+    author    = {Xuanlong Yu and
+                Gianni Franchi and
+                Emanuel Aldea},
+    title     = {SLURP: Side Learning Uncertainty for Regression Problems},
+    booktitle = {32nd British Machine Vision Conference, {BMVC} 2021,
+                Virtual Event /  November 22-25, 2021},
+    year      = {2021}
+    }
