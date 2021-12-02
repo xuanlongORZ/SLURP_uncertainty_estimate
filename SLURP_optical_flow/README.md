@@ -1,7 +1,7 @@
 ## SLURP on optical flow task
-It is implemented on FlowNet: Learning Optical Flow with Convolutional Networks. Links for BTS paper, Supp. and codes are as follows:
+It is implemented on FlowNet: Learning Optical Flow with Convolutional Networks. Links for FlowNet paper, Supp. and codes are as follows:
 
-Check [arXiv](https://arxiv.org/abs/1504.06852).
+Check [FlowNet arXiv](https://arxiv.org/abs/1504.06852).
 
 Check [here](https://github.com/ClementPinard/FlowNetPytorch) for its pytorch implementation by Clément Pinard.
 

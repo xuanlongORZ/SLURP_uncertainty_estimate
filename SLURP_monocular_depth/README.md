@@ -1,7 +1,7 @@
 ## SLURP on monocular depth task
 It is implemented based on BTS: From Big to Small: Multi-Scale Local Planar Guidance for Monocular Depth Estimation. Links for BTS paper, Supp. and codes are as follows:
 
-Check [arXiv](https://arxiv.org/abs/1907.10326) and [Supplementary material](https://arxiv.org/src/1907.10326v4/anc/bts_sm.pdf).
+Check [BTS arXiv](https://arxiv.org/abs/1907.10326) and [Supplementary material](https://arxiv.org/src/1907.10326v4/anc/bts_sm.pdf).
 
 Check [here](https://github.com/cogaplex-bts/bts/tree/master/pytorch) for its original pytorch implementation.
 

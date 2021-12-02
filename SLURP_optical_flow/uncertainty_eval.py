@@ -34,7 +34,8 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, gt_n
     # according to the real order index and predicted uncertainty order index respectively.
     sigma_pred_curve = []
     error_curve = []
-    fractions = list(np.arange(start=0.0, stop=1.0 - 1/nb_bins, step=(1/nb_bins)))
+    # fractions = list(np.arange(start=0.0, stop=1.0 - 1/nb_bins, step=(1/nb_bins)))
+    fractions = list(np.arange(start=0.0, stop=1.0, step=(1/nb_bins)))
     for fraction in fractions:
         # rmse or abs_rel
         if is_rmse:
