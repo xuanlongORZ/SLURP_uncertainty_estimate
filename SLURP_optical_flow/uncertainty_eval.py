@@ -59,6 +59,10 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, is_e
     
     sparsification_errors_pred = abs(hist_pred - hist_oracle).sum()
 
+    # I recommend you to use trapz to standardize the results using the line blow
+    # it is taken from https://github.com/fregu856/evaluating_bdl/blob/master/depthCompletion/mcdropout_eval_ause.py#L228
+    # sparsification_errors_pred = np.trapz(y=sparsification_errors_pred, x=fractions)
+
     if return_hist:
         return hist_pred, hist_oracle, nb_remain, sparsification_errors_pred
     else:

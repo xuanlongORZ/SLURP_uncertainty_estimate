@@ -41,7 +41,7 @@ parser.add_argument('--end_lr', type=float, default=0.00001, help='Ending learni
 parser.add_argument('--lr_policy', type=str, default=None, help='Learning rate policy: lambda|step|plateau|cosine, default: None')
 parser.add_argument('--lr_decay_iters', type=int, default=100, help='Multiply by a gamma every lr_decay_iters iterations, default: 100')
 parser.add_argument('--milestones', nargs="+", default=[150, 200, 250], help='Milestones for lr schedule if milestone is chosen, default: [150, 200, 250]')
-parser.add_argument('--weight_decay_en', type=float, default=1e-4, help='Weight decay of encoders, default: 1e-4')
+parser.add_argument('--weight_decay_en', type=float, default=1e-2, help='Weight decay of encoders, default: 1e-4')
 parser.add_argument('--weight_decay', type=float, default=4e-4, help='Weight decay of decoder and pre-encoder, default: 4e-4')
 # Slurp
 parser.add_argument('--encoder_U', type=str, default='densenet161', help='Resnet or densenet or others, default: densenet161')
@@ -377,6 +377,7 @@ def main():
                         if BEST_ERROR_SPAR > avg_spar_error:
                             content = content + 'Best Spar. '
                             BEST_ERROR_SPAR = avg_spar_error
+                            # in case of early-stop, save all best checkpoints
                             net_uncertainty_best_model_out_path = os.path.join('checkpoints', args.save_name, "model_best_spar_"+ str(TOTAL_ITER) +".pth")
                             torch.save(slurp.state_dict(), net_uncertainty_best_model_out_path)
                         content = content + '\n'

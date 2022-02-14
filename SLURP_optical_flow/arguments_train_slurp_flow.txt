@@ -7,4 +7,5 @@
 --val_freq 500
 --uncer_ch 1
 --encoder_U densenet121
+--epoch 15
 --cuda 
