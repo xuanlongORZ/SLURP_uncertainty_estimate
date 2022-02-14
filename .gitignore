@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+SLURP_optical_flow/nohup.out
+SLURP_optical_flow/arguments_train_slurp_flow.txt
+.vscode/settings.json

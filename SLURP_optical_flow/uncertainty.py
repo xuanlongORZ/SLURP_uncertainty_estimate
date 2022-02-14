@@ -179,7 +179,7 @@ class RefinementModule(nn.Module):
             block_ConvBR(128, 128, dilation=2), 
             block_ConvBR(128, 96, dilation=4), 
             block_ConvBR(96, 32, dilation=1))
-        self.last = nn.Conv2d(32, C_out, 1, bias=True)
+        self.last = nn.Conv2d(32, C_out, 3, 1, 1, bias=True)
     def forward(self, x_y):
         feature = F.dropout(self.est(x_y), 0.2, training=self.training)
         return self.last(feature)

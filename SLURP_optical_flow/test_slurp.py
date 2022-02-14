@@ -29,16 +29,7 @@ parser = argparse.ArgumentParser(description='Settings', fromfile_prefix_chars='
 parser.convert_arg_line_to_args = convert_arg_line_to_args
 
 # Training setting
-parser.add_argument('--batch_size', type=int, default=8, help='Training batch size, default: 8')
 parser.add_argument('--test_batch_size', type=int, default=1, help='Testing batch size, default: 1')
-parser.add_argument('--epoch', type=int, default=20, help='Total epoch count, default: 20')
-parser.add_argument('--start_lr', type=float, default=0.0001, help='Initial learning rate for adam, default: 1e-4')
-parser.add_argument('--end_lr', type=float, default=0.00001, help='Ending learning rate for adam, default: 1e-5')
-parser.add_argument('--lr_policy', type=str, default=None, help='Learning rate policy: lambda|step|plateau|cosine, default: None')
-parser.add_argument('--lr_decay_iters', type=int, default=100, help='Multiply by a gamma every lr_decay_iters iterations, default: 100')
-parser.add_argument('--milestones', nargs="+", default=[150, 200, 250], help='Milestones for lr schedule if milestone is chosen, default: [150, 200, 250]')
-parser.add_argument('--weight_decay_en', type=float, default=1e-4, help='Weight decay of encoders, default: 1e-4')
-parser.add_argument('--weight_decay', type=float, default=4e-4, help='Weight decay of decoder and pre-encoder, default: 4e-4')
 # Slurp
 parser.add_argument('--encoder_U', type=str, default='densenet161', help='Resnet or densenet or others, default: densenet161')
 parser.add_argument('--uncer_ch', type=int, default=1, help='Uncertainty output channel number. For optical flow, it is possible to set as 2, default: 1')
@@ -55,7 +46,6 @@ parser.add_argument('--checkpoint_path_slurp', type=str, default = None, help='P
 parser.add_argument('--checkpoint_path', type=str, default = None, help='Path of pretrained FlowNetS, default: None', required=True)
 
 # Others
-parser.add_argument('--save_name', type=str, default=None, help='Name of the save path where the models and examples are saved, default: None', required=True)
 parser.add_argument('--val_freq', default=500, type=int, help='Validation frequency, default: 500')
 parser.add_argument('--seed', type=int, default=123, help='Random seed to use, default: 123')
 parser.add_argument('--threads', type=int, default=4, help='Number of threads for data loader to use, default: 4')
@@ -93,7 +83,6 @@ def main():
             raise Exception("No GPU found, please run without --cuda")
 
         cudnn.benchmark = True
-        sparse = False
 
         torch.manual_seed(args.seed)
         if args.cuda:
@@ -112,37 +101,21 @@ def main():
             transforms.Normalize(mean=[0,0], std=[20,20])
         ])
 
-        if 'KITTI' in args.dataset_name:
-            sparse = True
-        if sparse:
-            co_transform = flow_transforms.Compose([
-                flow_transforms.RandomCrop((320,448)),
-                flow_transforms.RandomVerticalFlip(),
-                flow_transforms.RandomHorizontalFlip()
-            ])
-        else:
-            co_transform = flow_transforms.Compose([
-                flow_transforms.RandomTranslate(10),
-                flow_transforms.RandomRotate(10,5),
-                flow_transforms.RandomCrop((320,448)),
-                flow_transforms.RandomVerticalFlip(),
-                flow_transforms.RandomHorizontalFlip()
-            ])
-
         print("=> fetching img pairs in '{}'".format(args.dataset_path))
         train_set, test_set = datasets.__dict__[args.dataset_name](
                 args.dataset_path,
                 transform=input_transform,
                 target_transform=target_transform,
-                co_transform=co_transform,
+                co_transform=None,
                 split=args.split_file if args.split_file else args.split_value)
-
+        
+        # len(train_set) = 0
         print('{} samples found, {} train samples and {} test samples '.format(len(test_set)+len(train_set),
                                                                                 len(train_set),
                                                                                 len(test_set)))
-        train_loader = torch.utils.data.DataLoader(
-                train_set, batch_size=args.batch_size,
-                num_workers=args.threads, pin_memory=True, shuffle=True)
+        # train_loader = torch.utils.data.DataLoader(
+        #         train_set, batch_size=args.batch_size,
+        #         num_workers=args.threads, pin_memory=True, shuffle=True)
         val_loader = torch.utils.data.DataLoader(
                 test_set, batch_size=args.test_batch_size,
                 num_workers=args.threads, pin_memory=True, shuffle=False)
@@ -169,10 +142,7 @@ def main():
             slurp.load_state_dict(slurp_checkpoint)
         slurp.eval()
 
-        TOTAL_ITER = 1
         loss_criterion = logitbce_loss()
-        num_total_steps = len(train_loader) * args.epoch
-        print('num_total_steps: ', num_total_steps)
 
         # validate
         avg_error = 0
@@ -218,11 +188,11 @@ def main():
                     target_for_spar = target_for_spar ** 2
                     target_for_spar = np.sqrt(target_for_spar[:,:,0] + target_for_spar[:,:,1])
                     target_for_spar = np.expand_dims(target_for_spar, axis=2)
-                    spar_error = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
+                    spar_error = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=True)
                     avg_spar_error = avg_spar_error + spar_error
                 else:
-                    spar_error1 = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
-                    spar_error2 = sparsification_error(output_uncertainty_final[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
+                    spar_error1 = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=False)
+                    spar_error2 = sparsification_error(output_uncertainty_final[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=False)
                     avg_spar_error = avg_spar_error + (spar_error1 + spar_error2)/2
                             
             avg_error = avg_error /len(val_loader)

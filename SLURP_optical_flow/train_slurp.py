@@ -308,11 +308,11 @@ def main():
                             target_for_spar = target_for_spar ** 2
                             target_for_spar = np.sqrt(target_for_spar[:,:,0] + target_for_spar[:,:,1])
                             target_for_spar = np.expand_dims(target_for_spar, axis=2)
-                            spar_error = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
+                            spar_error = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=True)
                             avg_spar_error = avg_spar_error + spar_error
                         else:
-                            spar_error1 = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
-                            spar_error2 = sparsification_error(output_uncertainty_final[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]))
+                            spar_error1 = sparsification_error(output_uncertainty_final[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,0].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=False)
+                            spar_error2 = sparsification_error(output_uncertainty_final[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), target_for_spar[:,:,1].reshape(gt_flow.size()[-2]*gt_flow.size()[-1]), is_epe=False)
                             avg_spar_error = avg_spar_error + (spar_error1 + spar_error2)/2
                             
                             output_uncertainty_final = output_uncertainty_final ** 2
@@ -377,7 +377,7 @@ def main():
                         if BEST_ERROR_SPAR > avg_spar_error:
                             content = content + 'Best Spar. '
                             BEST_ERROR_SPAR = avg_spar_error
-                            net_uncertainty_best_model_out_path = os.path.join('checkpoints', args.save_name, "model_best_spar.pth")
+                            net_uncertainty_best_model_out_path = os.path.join('checkpoints', args.save_name, "model_best_spar_"+ str(TOTAL_ITER) +".pth")
                             torch.save(slurp.state_dict(), net_uncertainty_best_model_out_path)
                         content = content + '\n'
                         filename  = open(os.path.join('checkpoints', args.save_name, 'training_record.txt'), "a")

@@ -1,0 +1,11 @@
+--with_en_rgb 
+--with_pre 
+--dataset_path # your dataset path
+--checkpoint_path # your trained (on FlyingChairs) FlowNetS model path
+--checkpoint_path_slurp # your checkpoint
+--val_freq 500
+--uncer_ch 1
+--encoder_U densenet121
+--dataset_name mpi_sintel_clean
+--split_value 0
+--cuda 

@@ -19,7 +19,7 @@ from sklearn.metrics import roc_auc_score
         Given return_hist = True, three arrays corresponding to the components of sparsification curve.
 
 """
-def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, gt_npy = None, is_rmse = True):
+def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, is_epe = True):
     hist_pred = []
     hist_oracle = []
     nb_remain = []
@@ -37,15 +37,16 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, gt_n
     # fractions = list(np.arange(start=0.0, stop=1.0 - 1/nb_bins, step=(1/nb_bins)))
     fractions = list(np.arange(start=0.0, stop=1.0, step=(1/nb_bins)))
     for fraction in fractions:
-        # rmse or abs_rel
-        if is_rmse:
+        # rmse (2ch uncertainty output) or epe (1ch uncertainty output)
+        # in the paper we used 1ch output
+        if is_epe:
+            sigma_pred_point = np.mean( err_npy[argsorted_U[0:int((1.0-fraction)*total_len)]])
+            error_point = np.mean( err_npy[argsorted_E[0:int((1.0-fraction)*total_len)]])
+        else:
             sigma_pred_point = np.mean( err_npy[argsorted_U[0:int((1.0-fraction)*total_len)]]**2 )
             error_point = np.mean( err_npy[argsorted_E[0:int((1.0-fraction)*total_len)]]**2 )
             sigma_pred_point = np.sqrt(sigma_pred_point)
             error_point = np.sqrt(error_point)
-        else:
-            sigma_pred_point = np.mean(err_npy[argsorted_U[0:int((1.0-fraction)*total_len)]] / gt_npy[argsorted_U[0:int((1.0-fraction)*total_len)]])
-            error_point = np.mean(err_npy[argsorted_E[0:int((1.0-fraction)*total_len)]] / gt_npy[argsorted_E[0:int((1.0-fraction)*total_len)]])
 
         sigma_pred_curve.append(sigma_pred_point)
         error_curve.append(error_point)
