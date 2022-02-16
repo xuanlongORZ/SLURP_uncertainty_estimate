@@ -34,6 +34,7 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, is_e
     # according to the real order index and predicted uncertainty order index respectively.
     sigma_pred_curve = []
     error_curve = []
+    
     # fractions = list(np.arange(start=0.0, stop=1.0 - 1/nb_bins, step=(1/nb_bins)))
     fractions = list(np.arange(start=0.0, stop=1.0, step=(1/nb_bins)))
     for fraction in fractions:
@@ -53,8 +54,14 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, is_e
         nb_remain.append(int((1.0-fraction)*total_len))
     
     # as a note, this kind of normalization cannot make sure that the curves stay below 1 all the time.
-    hist_oracle = np.array(error_curve)/error_curve[0]
-    hist_pred = np.array(sigma_pred_curve)/sigma_pred_curve[0]
+    # hist_oracle = np.array(error_curve)/error_curve[0]
+    # hist_pred = np.array(sigma_pred_curve)/sigma_pred_curve[0]
+    
+    # in the paper I used the line below:
+    hist_oracle = np.array(error_curve)
+    hist_oracle = hist_oracle/hist_oracle.max()
+    hist_pred = np.array(sigma_pred_curve)
+    hist_pred = hist_pred/hist_pred.max()
     nb_remain = np.array(nb_remain)
     
     sparsification_errors_pred = abs(hist_pred - hist_oracle).sum()
