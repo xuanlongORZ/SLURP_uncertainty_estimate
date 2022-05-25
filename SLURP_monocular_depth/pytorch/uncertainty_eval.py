@@ -26,8 +26,11 @@ def sparsification_error(unc_npy, err_npy, nb_bins = 20, return_hist=False, gt_n
     # Get the index of the sorted vector
     # From small to big
     argsorted_U = np.argsort(unc_npy)
-    argsorted_E = np.argsort(err_npy)
-
+    if is_rmse:
+        argsorted_E = np.argsort(err_npy)
+    else:
+        argsorted_E = np.argsort(err_npy/gt_npy)
+        
     total_len = len(unc_npy)
 
     # Each time we calculate the remaining errors of the true error array,
